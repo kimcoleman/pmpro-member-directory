@@ -77,9 +77,10 @@ function pmpromd_show_extra_profile_fields($user)
             <td>
                 <?php
                 $directory_page = !empty( get_the_title($pmpro_pages['directory']) ) ? esc_html( get_the_title($pmpro_pages['directory']) ) : __( 'directory', 'pmpro-member-directory' ); ?>
-                <label for="hide_directory">
+                <label class="pmprorh_checkbox_label" for="hide_directory">
 				<?php /* translators: placeholder is for directory page name */ ?>
-                    <input name="hide_directory" type="checkbox" id="hide_directory" <?php checked( get_user_meta($user->ID, 'pmpromd_hide_directory', true), 1 ); ?> value="1"><?php printf(__('Hide from %s?','pmpro-member-directory'), $directory_page ); ?>
+                    <input name="hide_directory" type="checkbox" id="hide_directory" <?php checked( get_user_meta($user->ID, 'pmpromd_hide_directory', true), 1 ); ?> value="1" class="input">
+                    <?php printf(__('Hide from %s?','pmpro-member-directory'), $directory_page ); ?>
                 </label>
             </td>
         </tr>
@@ -88,12 +89,13 @@ function pmpromd_show_extra_profile_fields($user)
 <?php
 	} else { //If we're on the front-end page edit lets use div instead.
 ?>
-	<div class="pmpro_member_profile_edit-field pmpro_member_profile_edit-field-hide_directory">
-	<?php $directory_page = !empty( get_the_title($pmpro_pages['directory']) ) ? esc_html( get_the_title($pmpro_pages['directory']) ) : __( 'directory', 'pmpro-member-directory' ); ?>
-	<label for="hide_directory">
-		<input name="hide_directory" type="checkbox" id="hide_directory" <?php checked( get_user_meta($user->ID, 'pmpromd_hide_directory', true), 1 ); ?> value="1"><?php printf(__('Hide from %s?','pmpro-member-directory'), $directory_page ); ?>
-	</label>
-	</div> <!-- end pmpro_member_profile_edit-field-hide_directory -->
+	<div id="hide_directory_div" class="pmpro_checkout-field pmpro_checkout-field-checkbox">
+		<?php
+			$directory_page = ! empty( get_the_title($pmpro_pages['directory']) ) ? esc_html( get_the_title($pmpro_pages['directory']) ) : __( 'directory', 'pmpro-member-directory' );
+		?>
+		<input name="hide_directory" type="checkbox" id="hide_directory" <?php checked( get_user_meta($user->ID, 'pmpromd_hide_directory', true), 1 ); ?> value="1" class="input">
+		<label class="pmprorh_checkbox_label" for="hide_directory"><?php printf(__('Hide from %s?','pmpro-member-directory'), $directory_page ); ?></label>
+	</div> <!-- end hide_directory_div -->
 <?php
 	}
 }
