@@ -220,8 +220,21 @@ div.pmpro_member_profile strong {display: block; }
 		&.pmpro_member_directory_pagination-previous {
 			margin-right: 0;
 		}
+
 	}
 
+	span.pmpro_member_directory_pagination-disabled {
+		background-color: var(--pmpro--color--base);
+		border: 1px solid var(--pmpro--color--border--variation);
+		border-radius: var(--pmpro--base--border-radius);
+		color: var(--pmpro--color--contrast);
+		opacity: 0.5;
+		padding: 2px var(--pmpro--base--spacing--small);
+	}
+
+	.pmpro_member_directory_pagination-dots {
+		padding: 0 5px;
+	}
 }
 
 /* This is legacy pagination styling we can leave in here until we remove templating. */

@@ -680,3 +680,151 @@ function pmpromd_allowed_html() {
 	 */
 	return apply_filters( 'pmpromd_allowed_html', $allowed_html );
 }
+
+/**
+ * Generate pagination HTML for the member directory
+ *
+ * @since TBD
+ *
+ * @param int    $current_page    Current page number
+ * @param int    $total_rows      Total number of items
+ * @param int    $limit           Items per page
+ * @param string $search          Search term if any
+ * @param int    $post_id        Current post ID for generating URLs
+ *
+ * @return string HTML for pagination
+ */
+function pmpromd_get_pagination( $current_page, $total_rows, $limit, $search, $post_id ) {
+	$number_of_pages = ceil( $total_rows / $limit );
+	$window_size = 2;
+
+	// Start building pagination HTML
+	$html = '<nav class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination' ) ) . '" ';
+	$html .= 'aria-label="' . esc_attr__( 'Member Directory Pagination', 'pmpro-member-directory' ) . '">';
+
+	// Previous Button
+	$prev_args = array(
+		'ps' => $search,
+		'pn' => max( 1, $current_page - 1 ),
+		'limit' => $limit,
+	);
+	$prev_args = apply_filters( 'pmpromd_pagination_url', $prev_args, 'prev' );
+
+	if ( $current_page <= 1 ) {
+		$html .= '<span class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-previous pmpro_member_directory_pagination-disabled' ) ) . '" ';
+		$html .= 'aria-disabled="true" title="' . esc_attr__( 'Previous Page', 'pmpro-member-directory' ) . '">&larr; ' . esc_html__( 'Previous', 'pmpro-member-directory' ) . '</span>';
+	} else {
+		$html .= '<a class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-previous' ) ) . '" ';
+		$html .= 'href="' . esc_url( add_query_arg( $prev_args, get_permalink( $post_id ) ) ) . '" ';
+		$html .= 'title="' . esc_attr__( 'Previous Page', 'pmpro-member-directory' ) . '">&larr; ' . esc_html__( 'Previous', 'pmpro-member-directory' ) . '</a>';
+	}
+
+	// Calculate window for page numbers
+	$window_start = max( 2, $current_page - $window_size );
+	$window_end = min( $number_of_pages - 1, $current_page + $window_size );
+
+	// Adjust window for edge cases
+	if ( $current_page <= 4 ) {
+		$window_start = 2;
+		$window_end = min( 6, $number_of_pages - 1 );
+	} elseif ( $current_page >= $number_of_pages - 3 ) {
+		$window_start = max( 2, $number_of_pages - 5 );
+		$window_end = $number_of_pages - 1;
+	}
+
+	// First page
+	$html .= pmpromd_get_page_link( 1, $current_page, $search, $limit, $post_id );
+
+	// Dots after first page if needed
+	if ( $window_start > 2 ) {
+		$html .= '<span class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-dots' ) ) . '" aria-hidden="true">&hellip;</span>';
+	}
+
+	// Window of pages
+	for ( $i = $window_start; $i <= $window_end; $i++ ) {
+		$html .= pmpromd_get_page_link( $i, $current_page, $search, $limit, $post_id );
+	}
+
+	// Dots before last page if needed
+	if ( $window_end < $number_of_pages - 1 ) {
+		$html .= '<span class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-dots' ) ) . '" aria-hidden="true">&hellip;</span>';
+	}
+
+	// Last page if more than one page
+	if ( $number_of_pages > 1 ) {
+		$html .= pmpromd_get_page_link( $number_of_pages, $current_page, $search, $limit, $post_id );
+	}
+
+	// Next Button
+	$next_args = array(
+		'ps' => $search,
+		'pn' => min( $number_of_pages, $current_page + 1 ),
+		'limit' => $limit,
+	);
+	$next_args = apply_filters( 'pmpromd_pagination_url', $next_args, 'next' );
+
+	if ( $current_page >= $number_of_pages ) {
+		$html .= '<span class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-next pmpro_member_directory_pagination-disabled' ) ) . '" ';
+		$html .= 'aria-disabled="true" title="' . esc_attr__( 'Next Page', 'pmpro-member-directory' ) . '">' . esc_html__( 'Next', 'pmpro-member-directory' ) . ' &rarr;</span>';
+	} else {
+		$html .= '<a class="' . esc_attr( pmpro_get_element_class( 'pmpro_member_directory_pagination-next' ) ) . '" ';
+		$html .= 'href="' . esc_url( add_query_arg( $next_args, get_permalink( $post_id ) ) ) . '" ';
+		$html .= 'title="' . esc_attr__( 'Next Page', 'pmpro-member-directory' ) . '">' . esc_html__( 'Next', 'pmpro-member-directory' ) . ' &rarr;</a>';
+	}
+
+	$html .= '</nav>';
+
+	/**
+	 * Filters the pagination HTML for the member directory
+	 *
+	 * @since TBD
+	 *
+	 * @param string $html The pagination HTML
+	 * @param int    $current_page Current page number
+	 * @param int    $total_rows Total number of items
+	 * @param int    $limit Items per page
+	 * @param string $search Search term if any
+	 * @param int    $post_id Current post ID for generating URLs
+	 *
+	 * @return string The filtered pagination HTML
+	 */
+	$html = apply_filters( 'pmpromd_get_pagination', $html, $current_page, $total_rows, $limit, $search, $post_id );
+
+	return apply_filters( 'pmpromd_get_pagination', $html );
+}
+
+/**
+ * Helper function to generate a single page link for pagination
+ *
+ * @since TBD
+ *
+ * @param int    $page_number    The page number to generate link for
+ * @param int    $current_page   Current page number
+ * @param string $search         Search term if any
+ * @param int    $limit          Items per page
+ * @param int    $post_id       Current post ID for generating URLs
+ *
+ * @return string HTML for the page link
+ */
+function pmpromd_get_page_link( $page_number, $current_page, $search, $limit, $post_id ) {
+	$query_args = array(
+		'ps' => $search,
+		'pn' => $page_number,
+		'limit' => $limit,
+	);
+
+	$classes = array( 'pmpro_member_directory_pagination-page' );
+	if ( $page_number == $current_page ) {
+		$classes[] = 'pmpro_member_directory_pagination-current';
+	}
+
+	$html = '<a href="' . esc_url( add_query_arg( $query_args, get_permalink( $post_id ) ) ) . '" ';
+	$html .= 'class="' . esc_attr( pmpro_get_element_class( implode( ' ', $classes ) ) ) . '" ';
+	$html .= 'title="' . esc_attr( sprintf( __( 'Page %s', 'pmpro-member-directory' ), $page_number ) ) . '" ';
+	if ( $page_number == $current_page ) {
+		$html .= 'aria-current="page" ';
+	}
+	$html .= '>' . esc_html( $page_number ) . '</a>';
+
+	return $html;
+}
